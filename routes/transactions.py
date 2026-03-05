@@ -3,6 +3,8 @@ from models import Transaction
 from database import transactions_collection
 from bson import ObjectId
 
+# this file handles storing and retrieving transactions that are called by MongoDB
+
 router = APIRouter()
 
 @router.post("/")

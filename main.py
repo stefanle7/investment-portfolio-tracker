@@ -1,6 +1,8 @@
 from fastapi import FastAPI
 from routes import transactions, portfolio
 
+# used to run FastAPI
+
 app = FastAPI()
 
 app.include_router(transactions.router, prefix="/transactions", tags=["Transactions"])

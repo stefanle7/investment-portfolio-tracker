@@ -8,6 +8,9 @@ router = APIRouter()
 def get_portfolio():
     holdings = {}
 
+    # Loop through every transaction in MongoDB and build a holdings map.
+    # For buys, add to quantity and total cost. For sells, subtract from quantity.
+    # This aggregates (combining all into one) all transactions per ticker so we can calculate avg buy price and gain/loss.
     for t in transactions_collection.find():
         ticker = t["ticker"].upper()
         qty = t["quantity"] if t["type"] == "buy" else -t["quantity"]
@@ -23,17 +26,18 @@ def get_portfolio():
     for ticker, data in holdings.items():
         if data["quantity"] <= 0:
             continue
+        # fetching live price from yahoo finance
         stock = yf.Ticker(ticker)
-        current_price = stock.fast_info["last_price"]
-        avg_buy_price = data["total_cost"] / data["quantity"]
-        gain_loss = (current_price - avg_buy_price) * data["quantity"]
+        current_price = stock.fast_info["last_price"] # drawn from yfinance to find the current price of stock 
+        avg_buy_price = data["total_cost"] / data["quantity"] # simple math logic
+        gain_loss = (current_price - avg_buy_price) * data["quantity"] # simple math logic 
 
         portfolio.append({
             "ticker": ticker,
             "quantity": data["quantity"],
             "avg_buy_price": round(avg_buy_price, 2), #2decimal
             "current_price": round(current_price, 2), #2decimal
-            "gain_loss": round(gain_loss, 2), #2decimal
+            "gain_loss": round(gain_loss, 2), #2decimal 
         })
 
     return portfolio
